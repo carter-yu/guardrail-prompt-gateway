@@ -41,16 +41,16 @@ Build a local, enterprise-grade LLM Gateway and Prompt Optimization service that
 
 ### Slice 0: Foundation, Scaffolding & Telemetry Spine (v0.1.0)
 **Goal:** Establish repository structure, offline test harness, and deterministic telemetry logging schema.
-- [ ] Initialize repo structure according to §5 of ground rules.
-- [ ] Implement `src/lib/logger.py` supporting Section 3.1 telemetry fields (`provider`, `model_id`, `prompt_version`, `node`, `latency_ms`, `token_in`, `token_out`, `token_total`, `finish_reason`, `estimated_cost_usd`).
-- [ ] Implement price catalog `src/lib/prices.py` (`eval/prices.yaml`) for Gemini and xAI models.
-- [ ] Implement `FakeLLMClient` returning deterministic schema-valid responses without external API calls.
-- [ ] **Locked Test Table (Slice 0):**
+- [x] Initialize repo structure according to §5 of ground rules.
+- [x] Implement `src/lib/logger.py` supporting Section 3.1 telemetry fields (`provider`, `model_id`, `prompt_version`, `node`, `latency_ms`, `token_in`, `token_out`, `token_total`, `finish_reason`, `estimated_cost_usd`).
+- [x] Implement price catalog `src/lib/prices.py` (`eval/prices.yaml`) for Gemini and xAI models.
+- [x] Implement `FakeLLMClient` returning deterministic schema-valid responses without external API calls.
+- [x] **Locked Test Table (Slice 0):**
   - `T0.1 (Happy)`: Logger emits valid JSON with all mandatory §3.1 fields on successful fake call.
   - `T0.2 (Failure)`: Logger records `finish_reason="error"` and retains latency/token metrics when call fails.
   - `T0.3 (Contract)`: Ensure cost calculation handles unknown models gracefully (`estimated_cost_usd=0.0`).
   - `T0.4 (Garbage)`: Logger survives malformed provider payloads without crashing.
-- [ ] Deliverable: Green offline `pytest`, `PROGRESS.md`, SemVer bump to `v0.1.0`.
+- [x] Deliverable: Green offline `pytest`, `PROGRESS.md`, SemVer bump to `v0.1.0`.
 
 ---
 

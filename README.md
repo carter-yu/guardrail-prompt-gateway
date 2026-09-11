@@ -4,7 +4,7 @@ A weekend learning demo: **deterministic prompt gates** (schema, allowlist, vali
 
 This is **not** production prompt-injection defence, **not** a hosted API gateway, **not** a multi-agent platform, and **not** cec-vivisystem or visa-games. The LLM is a component, never source of truth.
 
-Constitution: [docs/ground-rules.md](docs/ground-rules.md).
+Constitution: [docs/ground-rules.md](docs/ground-rules.md). Slice indexes: [phases/slice-0.md](phases/slice-0.md) … [slice-4.md](phases/slice-4.md) (locked tests live in [PROJECT_PLAN.md](docs/PROJECT_PLAN.md)).
 
 **Version:** 0.2.0 (Slice 1 router + input gate).
 

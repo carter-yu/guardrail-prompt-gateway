@@ -228,9 +228,9 @@ After Slice 3, `POST /api/v1/generate` runs `graph.invoke` for new prompts. The 
 
 ### KD-12 — PROJECT_PLAN is the locked phase/test table
 
-**Decision:** Do not fork a parallel `phases/slice-N.md` that restates T0.1–T4.4. `phases/phase-0-environment.md` already records H1–H3; leave it. Each PR’s description cites the plan section. `PROGRESS.md` records counts.
+**Decision:** Locked test tables stay in [PROJECT_PLAN.md](PROJECT_PLAN.md). `phases/slice-0.md` … `slice-4.md` are **indexes** (status, pointers, out of scope) — they must not grow a second fixture table. `phases/phase-0-environment.md` remains H1–H3. `PROGRESS.md` records counts.
 
-**Rationale:** Dual locked tables will diverge.
+**Rationale:** Dual locked tables will diverge. Cec-style `phases/` navigation is still useful.
 
 ### KD-13 — Bind `127.0.0.1` by default
 
