@@ -56,18 +56,18 @@ Build a local, enterprise-grade LLM Gateway and Prompt Optimization service that
 
 ### Slice 1: Model Gateway & Deterministic Router (v0.2.0)
 **Goal:** Implement model-switching service between Gemini and xAI with strict input validation.
-- [ ] Define input/output schemas in `src/schemas/gateway.py` (`GatewayRequest`, `GatewayResponse`, `ProviderEnum`).
-- [ ] Implement `src/services/router.py`:
+- [x] Define input/output schemas in `src/schemas/gateway.py` (`GatewayRequest`, `GatewayResponse`, `ProviderEnum`).
+- [x] Implement `src/services/router.py`:
   - Enforce max prompt length (e.g., 2000 chars) and reject suspicious injection tokens.
   - Route execution to `ChatGoogleGenerativeAI` or `ChatXAI` based on request parameter.
   - Injectable provider factory (allows injecting `FakeLLM` during tests).
-- [ ] Write ADR `docs/decisions/0001-multi-model-provider-abstraction.md`.
-- [ ] **Locked Test Table (Slice 1):**
+- [x] Write ADR `docs/decisions/0002-multi-model-provider-abstraction.md` (plan filename 0001 is tooling).
+- [x] **Locked Test Table (Slice 1):**
   - `T1.1 (Happy)`: Routing to `google` or `xai` returns expected structured response schema.
   - `T1.2 (Gate)`: Input exceeding character ceiling is rejected with `outcome="skipped"`.
   - `T1.3 (Gate)`: PII detection regex blocks HKID / credit card patterns at boundary.
   - `T1.4 (Contract)`: Provider timeout triggers structured retry (max 2) and logs `outcome="failure"`.
-- [ ] Deliverable: Working offline router test suite, `PROGRESS.md`, SemVer bump to `v0.2.0`.
+- [x] Deliverable: Working offline router test suite, `PROGRESS.md`, SemVer bump to `v0.2.0`.
 
 ---
 

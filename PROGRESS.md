@@ -5,6 +5,23 @@ Add a new entry at the top after every session.
 
 ---
 
+## 2026-09-11 (Slice 1 router)
+
+- **Phase**: Slice 1 – model gateway + input gate
+- **Version**: 0.2.0
+- **Completed**:
+  - `GatewayRequest` / `GatewayResponse` / `ErrorType`
+  - Input gate: 2000 chars, HKID, Luhn PAN, injection denylist
+  - `complete_llm` (timeout retries 0..2) + `complete_request` (gate then llm)
+  - `get_client` wraps Fake or live stub; ADR [0002](docs/decisions/0002-multi-model-provider-abstraction.md)
+- **Tests**: 19 passed (H1–H3, T0.1–T0.4, T1.1–T1.4); ruff clean
+- **Issues / Friction**: live ChatXAI/Gemini bodies still stubs
+- **Resilience notes**: PII blocked not forwarded; Fake in pytest; no FastAPI yet
+- **Next session plan**: Slice 2 uvicorn UI T2.1–T2.3
+- **Session status**: Slice 1 offline acceptance met
+
+---
+
 ## 2026-09-11 (Slice 0 telemetry)
 
 - **Phase**: Slice 0 – telemetry spine, prices, Fake LLM

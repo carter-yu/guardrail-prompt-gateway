@@ -1,6 +1,6 @@
 [project]
 name = "guardrail-prompt-gateway"
-version = "0.1.0"
+version = "0.2.0"
 description = "Learning demo: deterministic prompt gates around a pinned LLM"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -25,6 +25,8 @@ build-backend = "hatchling.build"
 packages = [
     "src/guardrail_prompt_gateway",
     "src/lib",
+    "src/schemas",
+    "src/services",
 ]
 
 [tool.pytest.ini_options]

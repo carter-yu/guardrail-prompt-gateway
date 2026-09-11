@@ -69,11 +69,18 @@ class FakeLLMClient:
         script: Mapping[str, LLMResult] | Callable[[LLMRequest], LLMResult] | None = None,
         *,
         fail_next: BaseException | None = None,
+        fail_remaining: int = 0,
+        fail_with: type[BaseException] = TimeoutError,
     ) -> None:
         self._script = script
         self.fail_next = fail_next
+        self.fail_remaining = fail_remaining
+        self.fail_with = fail_with
 
     def complete(self, req: LLMRequest) -> LLMResult:
+        if self.fail_remaining > 0:
+            self.fail_remaining -= 1
+            raise self.fail_with("provider timeout")
         if self.fail_next is not None:
             exc = self.fail_next
             self.fail_next = None
