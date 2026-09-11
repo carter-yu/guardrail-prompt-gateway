@@ -5,6 +5,24 @@ Add a new entry at the top after every session.
 
 ---
 
+## 2026-09-11 (Slice 0 telemetry)
+
+- **Phase**: Slice 0 – telemetry spine, prices, Fake LLM
+- **Version**: 0.1.0 (complete when T0.1–T0.4 green)
+- **Completed**:
+  - Design in [docs/architecture.md](docs/architecture.md) (review consensus)
+  - `src/lib/logger.py` `telemetry_from_provider` + `emit_llm_call`
+  - `eval/prices.yaml` + `PriceTable` (unknown model → $0.0)
+  - `FakeLLMClient` + `TelemetryLLMClient` (sole `llm_call` emitter); `NoOpTracer`
+  - Tests T0.1–T0.4; H1–H3 kept
+- **Tests**: 7 passed (H1–H3 + T0.1–T0.4); ruff clean
+- **Issues / Friction**: none
+- **Resilience notes**: Fake only; no network; class A stdout JSON; no store
+- **Next session plan**: Slice 1 router + input gate (T1.1–T1.4). ADR 0002 multi-model. Live adapters stay stubs
+- **Session status**: Slice 0 offline acceptance met
+
+---
+
 ## 2026-09-11 (Phase 0 environment)
 
 - **Phase**: 0 – Environment & foundations

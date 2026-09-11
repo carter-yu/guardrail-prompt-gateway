@@ -1,0 +1,25 @@
+"""Injectable clock. Telemetry timestamps are Asia/Hong_Kong."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+FAMILY_TZ = ZoneInfo("Asia/Hong_Kong")
+
+
+class Clock:
+    """``now()`` returns a timezone-aware datetime in ``Asia/Hong_Kong``."""
+
+    def __init__(self, now_fn: Callable[[], datetime] | None = None) -> None:
+        self._now_fn = now_fn
+
+    def now(self) -> datetime:
+        if self._now_fn is not None:
+            value = self._now_fn()
+        else:
+            value = datetime.now(tz=FAMILY_TZ)
+        if value.tzinfo is None:
+            return value.replace(tzinfo=FAMILY_TZ)
+        return value.astimezone(FAMILY_TZ)

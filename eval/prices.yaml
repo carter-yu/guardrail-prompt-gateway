@@ -1,0 +1,28 @@
+version: "2026-09-11"
+currency: USD
+unit: per_1m_tokens
+models:
+  fake:
+    provider: fake
+    input_usd: 0.0
+    output_usd: 0.0
+  grok-4.3:
+    provider: xai
+    input_usd: 1.25
+    output_usd: 2.50
+  grok-4:
+    provider: xai
+    input_usd: 3.00
+    output_usd: 15.00
+  grok-build-0.1:
+    provider: xai
+    input_usd: 1.00
+    output_usd: 2.00
+  gemini-2.5-flash:
+    provider: google
+    input_usd: 0.30
+    output_usd: 2.50
+  gemini-2.0-flash:
+    provider: google
+    input_usd: 0.10
+    output_usd: 0.40

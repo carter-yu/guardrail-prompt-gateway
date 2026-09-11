@@ -1,9 +1,3 @@
-"""Shared pytest fixtures."""
+"""Shared pytest fixtures. Do not globally configure hello ConsoleRenderer (T0 JSON)."""
 
 from __future__ import annotations
-
-from guardrail_prompt_gateway.logging import setup_logging
-
-
-def pytest_configure() -> None:
-    setup_logging(level="INFO")
