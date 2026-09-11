@@ -93,18 +93,18 @@ Build a local, enterprise-grade LLM Gateway and Prompt Optimization service that
 
 ### Slice 3: Explicit LangGraph Prompt Optimization Engine (v0.4.0)
 **Goal:** Implement a 2-node graph to refine, structure, and optimize raw prompts before execution.
-- [ ] Define graph state in `src/graph/state.py` using typed `Pydantic` schema (`raw_prompt`, `optimized_prompt`, `model_target`, `step_count`, `confirmed`).
-- [ ] Implement explicit LangGraph nodes in `src/graph/optimizer.py`:
+- [x] Define graph state in `src/graph/state.py` using typed `Pydantic` schema (`raw_prompt`, `optimized_prompt`, `model_target`, `step_count`, `confirmed`).
+- [x] Implement explicit LangGraph nodes in `src/graph/optimizer.py`:
   - Node 1: `refine_prompt` (Transforms rough family query into structured objective + constraints).
   - Node 2: `execute_prompt` (Dispatches optimized prompt to target LLM).
-- [ ] Enforce deterministic guardrail: `recursion_limit=5`, no unbounded loops.
-- [ ] Pinned prompt template: `prompts/prompt_refiner.v1.md`.
-- [ ] Write ADR `docs/decisions/0002-langgraph-state-machine-topology.md`.
-- [ ] **Locked Test Table (Slice 3):**
+- [x] Enforce deterministic guardrail: `recursion_limit=5`, no unbounded loops.
+- [x] Pinned prompt template: `prompts/prompt_refiner.v1.md`.
+- [x] Write ADR `docs/decisions/0002-langgraph-state-machine-topology.md` (fulfilled as `0003-langgraph-state-machine-topology.md`; see erratum above).
+- [x] **Locked Test Table (Slice 3):**
   - `T3.1 (Happy)`: Raw query "find me tickets to Osaka" expands into structured query with origin, destination, and dates.
   - `T3.2 (Guardrail)`: Graph terminates safely at `max_steps` without hanging.
   - `T3.3 (Contract)`: Node output strictly conforms to `RefinedPromptSchema`.
-- [ ] Deliverable: Graph test suite green with Fake LLM, mermaid diagram in README, SemVer bump to `v0.4.0`.
+- [x] Deliverable: Graph test suite green with Fake LLM, mermaid diagram in README, SemVer bump to `v0.4.0`.
 
 ---
 

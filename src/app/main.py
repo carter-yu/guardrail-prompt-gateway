@@ -1,4 +1,4 @@
-"""FastAPI app: GET / UI, POST /api/v1/generate, GET /health."""
+"""FastAPI app: GET / UI, POST /api/v1/generate (graph.invoke), GET /health."""
 
 from __future__ import annotations
 
@@ -12,12 +12,18 @@ from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
 
 from app.i18n import UI
+from graph.optimizer import (
+    build_graph,
+    run_gateway_graph,
+    skipped_response,
+)
 from guardrail_prompt_gateway import __version__
 from lib.llm import FakeLLMClient, TelemetryLLMClient
 from lib.tracer import get_tracer, langfuse_enabled
 from schemas.gateway import ErrorType, GatewayRequest, GatewayResponse, ProviderEnum
+from services.input_gate import check_input
 from services.providers import default_model_id
-from services.router import complete_request, get_client
+from services.router import get_client
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
 
@@ -34,8 +40,8 @@ def create_app(
     graph=None,
     confirmation_store=None,
 ) -> FastAPI:
-    """Slice 2: llm_factory + tracer. GATEWAY_USE_FAKE=true uses Fake LLM (no keys)."""
-    del graph, confirmation_store
+    """Slice 3: llm_factory + tracer + graph. GATEWAY_USE_FAKE=true uses Fake LLM (no keys)."""
+    del confirmation_store
     if llm_factory is None:
         if os.getenv("GATEWAY_USE_FAKE", "").lower() in {"1", "true", "yes"}:
             llm_factory = _fake_factory
@@ -44,6 +50,7 @@ def create_app(
     app = FastAPI(title="guardrail-prompt-gateway", version=__version__)
     app.state.llm_factory = llm_factory
     app.state.tracer = tracer if tracer is not None else get_tracer()
+    app.state.graph = graph if graph is not None else build_graph(get_client_fn=llm_factory)
 
     @app.exception_handler(RequestValidationError)
     def _validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -78,7 +85,11 @@ def create_app(
 
     @app.post("/api/v1/generate")
     def generate(payload: GatewayRequest) -> JSONResponse:
-        response = complete_request(payload, llm_factory=app.state.llm_factory)
+        rejected = check_input(payload.prompt)
+        if rejected is not None:
+            response = skipped_response(payload, rejected.error_type, rejected.error_message)
+        else:
+            response = run_gateway_graph(payload, graph=app.state.graph)
         status = 400 if response.outcome == "skipped" else 200
         return JSONResponse(status_code=status, content=response.model_dump(mode="json"))
 

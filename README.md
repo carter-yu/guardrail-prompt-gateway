@@ -6,14 +6,24 @@ This is **not** production prompt-injection defence, **not** a hosted API gatewa
 
 Constitution: [docs/ground-rules.md](docs/ground-rules.md). Slice indexes: [phases/slice-0.md](phases/slice-0.md) … [slice-4.md](phases/slice-4.md) (locked tests live in [PROJECT_PLAN.md](docs/PROJECT_PLAN.md)).
 
-**Version:** 0.3.0 (Slice 2 local UI).
+**Version:** 0.4.0 (Slice 3 LangGraph refine → execute).
 
 ## Language
 - Demo UI: Hong Kong Cantonese + English
 - Code, docs, commits, ADRs: English only. Never Simplified Chinese.
 
 ## Current status
-See [PROGRESS.md](PROGRESS.md). Slice 2: local UI at `http://127.0.0.1:8787`. Fake LLM unless keys exist. Not a public gateway. Injection denylist is a demo tripwire, not a jailbreak product.
+See [PROGRESS.md](PROGRESS.md). Slice 3: local UI at `http://127.0.0.1:8787` runs an explicit 2-node graph (`refine_prompt` → `execute_prompt`). Fake LLM unless keys exist. Not a public gateway. Injection denylist is a demo tripwire, not a jailbreak product.
+
+```mermaid
+stateDiagram-v2
+  [*] --> refine_prompt
+  refine_prompt --> execute_prompt: validation_outcome=pass
+  refine_prompt --> Failed: schema fail after 1 retry / max_steps
+  execute_prompt --> [*]: success
+  execute_prompt --> Failed: timeout / schema / max_steps
+  Failed --> [*]
+```
 
 ## Quick start
 
@@ -37,4 +47,4 @@ GATEWAY_USE_FAKE=true uv run uvicorn --app-dir src app.main:app --host 127.0.0.1
 Open http://127.0.0.1:8787
 
 ## Next
-Slice 3 (v0.4.0): LangGraph refine → execute. Locked tests T3.1–T3.3.
+Slice 4 (v0.5.0): `flight_search` allowlist + HITL dry-run. Locked tests T4.1–T4.4.

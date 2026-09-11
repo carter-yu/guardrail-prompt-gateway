@@ -5,6 +5,21 @@ Add a new entry at the top after every session.
 
 ---
 
+## 2026-09-11 (Slice 3 LangGraph)
+
+- **Phase**: Slice 3 – explicit 2-node LangGraph (`refine_prompt` → `execute_prompt`)
+- **Version**: 0.4.0
+- **Completed**:
+  - `OptimizerState` + `RefinedPromptSchema`; pinned `prompts/prompt_refiner.v1.md`
+  - `build_graph` with `recursion_limit=5` on invoke and in-graph `max_steps`
+  - HTTP `POST /api/v1/generate` = input gate then `graph.invoke`; counters are sums
+  - ADR [0003](docs/decisions/0003-langgraph-state-machine-topology.md) (plan filename 0002 is superseded)
+- **Tests**: 27 passed (H1–H3, T0–T3); ruff clean
+- **Next session plan**: Slice 4 flight tool + HITL T4.1–T4.4
+- **Session status**: Slice 3 offline acceptance met
+
+---
+
 ## 2026-09-11 (Slice 2 UI)
 
 - **Phase**: Slice 2 – FastAPI bilingual UI + Langfuse no-op

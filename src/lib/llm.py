@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 import uuid
 from collections.abc import Callable, Mapping
@@ -89,6 +90,35 @@ class FakeLLMClient:
             return self._script(req)
         if isinstance(self._script, Mapping) and req.node in self._script:
             return self._script[req.node]
+        if req.node == "refine_prompt":
+            user = next((m.content for m in reversed(req.messages) if m.role == "user"), "Respond")
+            payload = {
+                "objective": user.strip() or "Respond to the user",
+                "origin": None,
+                "destination": None,
+                "departure_date": None,
+                "return_date": None,
+                "constraints": [],
+                "language": "mixed",
+            }
+            if "osaka" in user.lower():
+                payload.update(
+                    {
+                        "objective": "Find flights to Osaka",
+                        "origin": "HKG",
+                        "destination": "KIX",
+                        "departure_date": "2026-10-01",
+                        "language": "en",
+                    }
+                )
+            return LLMResult(
+                text=json.dumps(payload),
+                model_id="fake",
+                provider="fake",
+                finish_reason="stop",
+                token_in=0,
+                token_out=0,
+            )
         return LLMResult(
             text=DEFAULT_FAKE_TEXT,
             model_id="fake",
