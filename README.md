@@ -6,14 +6,14 @@ This is **not** production prompt-injection defence, **not** a hosted API gatewa
 
 Constitution: [docs/ground-rules.md](docs/ground-rules.md). Slice indexes: [phases/slice-0.md](phases/slice-0.md) … [slice-4.md](phases/slice-4.md) (locked tests live in [PROJECT_PLAN.md](docs/PROJECT_PLAN.md)).
 
-**Version:** 0.2.0 (Slice 1 router + input gate).
+**Version:** 0.3.0 (Slice 2 local UI).
 
 ## Language
-- Demo UI (later): Hong Kong Cantonese + English
+- Demo UI: Hong Kong Cantonese + English
 - Code, docs, commits, ADRs: English only. Never Simplified Chinese.
 
 ## Current status
-See [PROGRESS.md](PROGRESS.md). Slice 1: `complete_request` routes xAI/Gemini behind Fake LLM in tests; length/PII/injection gates skip; timeouts retry twice then fail. Live vendor SDKs are stubs. Not a public gateway. Injection denylist is a demo tripwire, not a jailbreak product.
+See [PROGRESS.md](PROGRESS.md). Slice 2: local UI at `http://127.0.0.1:8787`. Fake LLM unless keys exist. Not a public gateway. Injection denylist is a demo tripwire, not a jailbreak product.
 
 ## Quick start
 
@@ -28,5 +28,13 @@ uv run python -c "from schemas.gateway import GatewayRequest, ProviderEnum; from
 
 Copy `.env.example` to `.env` for later live slices. Default tests must stay green with no keys.
 
+Local UI (Fake LLM, no keys):
+
+```bash
+GATEWAY_USE_FAKE=true uv run uvicorn --app-dir src app.main:app --host 127.0.0.1 --port 8787
+```
+
+Open http://127.0.0.1:8787
+
 ## Next
-Slice 2 (v0.3.0): FastAPI bilingual UI + `/api/v1/generate` + Langfuse no-op. Locked tests T2.1–T2.3.
+Slice 3 (v0.4.0): LangGraph refine → execute. Locked tests T3.1–T3.3.

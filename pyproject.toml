@@ -1,14 +1,18 @@
 [project]
 name = "guardrail-prompt-gateway"
-version = "0.2.0"
+version = "0.3.0"
 description = "Learning demo: deterministic prompt gates around a pinned LLM"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.115",
+    "httpx>=0.27",
+    "jinja2>=3.1",
     "pydantic>=2.0",
     "python-dotenv>=1.2.2",
     "pyyaml>=6.0",
     "structlog",
+    "uvicorn>=0.32",
 ]
 
 [dependency-groups]
@@ -27,6 +31,7 @@ packages = [
     "src/lib",
     "src/schemas",
     "src/services",
+    "src/app",
 ]
 
 [tool.pytest.ini_options]

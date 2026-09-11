@@ -1,6 +1,6 @@
 # Slice 2 – Family web UI & Langfuse no-op (v0.3.0)
 
-**Status:** Not started
+**Status:** Done
 
 **Inherits** [ground-rules.md](../docs/ground-rules.md) · locked table in [PROJECT_PLAN.md](../docs/PROJECT_PLAN.md) §3 Slice 2 · [architecture.md](../docs/architecture.md) KD-6, KD-13, §4.6
 

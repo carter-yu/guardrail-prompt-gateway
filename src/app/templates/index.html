@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ ui.title }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <main class="max-w-2xl mx-auto p-6 space-y-6">
+    <h1 class="text-2xl font-semibold">{{ ui.title }}</h1>
+    <form id="gen-form" class="space-y-4" onsubmit="return false;">
+      <label class="block text-sm">{{ ui.prompt_label }}
+        <textarea id="prompt" name="prompt" rows="6" maxlength="2000"
+          class="mt-1 w-full rounded-md bg-slate-900 border border-slate-700 p-3 text-slate-100"></textarea>
+      </label>
+      <label class="block text-sm">{{ ui.model_label }}
+        <select id="provider" class="mt-1 w-full rounded-md bg-slate-900 border border-slate-700 p-2">
+          <option value="xai">{{ ui.provider_xai }}</option>
+          <option value="google">{{ ui.provider_google }}</option>
+        </select>
+      </label>
+      <button id="submit" type="button"
+        class="rounded-md bg-sky-600 hover:bg-sky-500 px-4 py-2 text-sm font-medium">
+        {{ ui.submit }}
+      </button>
+    </form>
+    <p id="telemetry" class="text-sm text-slate-400">{{ ui.telemetry }}</p>
+    <pre id="result" class="whitespace-pre-wrap rounded-md bg-slate-900 border border-slate-800 p-4 text-sm min-h-[6rem]"></pre>
+  </main>
+  <script>
+    const formBtn = document.getElementById("submit");
+    const resultEl = document.getElementById("result");
+    const telEl = document.getElementById("telemetry");
+    const telTemplate = {{ ui.telemetry | tojson }};
+    formBtn.addEventListener("click", async () => {
+      resultEl.textContent = "…";
+      const body = {
+        prompt: document.getElementById("prompt").value,
+        provider: document.getElementById("provider").value,
+      };
+      const res = await fetch("/api/v1/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      const tokens = (data.token_in || 0) + (data.token_out || 0);
+      telEl.textContent = telTemplate
+        + " — " + (data.latency_ms ?? "?") + " ms"
+        + " | " + tokens
+        + " | $" + (data.estimated_cost_usd ?? 0)
+        + " | calls " + (data.llm_calls ?? "?");
+      resultEl.textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>

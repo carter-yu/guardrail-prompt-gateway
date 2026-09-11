@@ -5,6 +5,21 @@ Add a new entry at the top after every session.
 
 ---
 
+## 2026-09-11 (Slice 2 UI)
+
+- **Phase**: Slice 2 – FastAPI bilingual UI + Langfuse no-op
+- **Version**: 0.3.0
+- **Completed**:
+  - `GET /`, `GET /health`, `POST /api/v1/generate`
+  - Jinja2 UI (yue-HK + English); JSON `fetch` (not form-urlencoded)
+  - `get_tracer()` no-op when `LANGFUSE_ENABLED` is unset/false
+  - `GATEWAY_USE_FAKE=true` for key-free demo
+- **Tests**: 24 passed (H1–H3, T0–T2); ruff clean
+- **Next session plan**: Slice 3 LangGraph T3.1–T3.3
+- **Session status**: Slice 2 offline acceptance met
+
+---
+
 ## 2026-09-11 (Slice 1 router)
 
 - **Phase**: Slice 1 – model gateway + input gate

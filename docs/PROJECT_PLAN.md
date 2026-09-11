@@ -73,21 +73,21 @@ Build a local, enterprise-grade LLM Gateway and Prompt Optimization service that
 
 ### Slice 2: Family Web Interface & Langfuse Integration (v0.3.0)
 **Goal:** Deliver a runnable local web interface with bilingual UI and trace instrumentation.
-- [ ] Implement lightweight UI (FastAPI static templates or Streamlit):
+- [x] Implement lightweight UI (FastAPI static templates or Streamlit):
   - Model Switcher: Gemini / xAI toggle.
   - Bilingual interface text (Cantonese + English):
     - Input: "輸入提示詞 (Enter Prompt)"
     - Model: "選擇模型 (Select Model)"
     - Submit: "送出 (Submit)"
     - Telemetry Badge: "耗時 (Latency) | 消耗 Token (Tokens) | 預估成本 (Cost)"
-- [ ] Integrate Langfuse wrapper in `src/lib/tracer.py`:
+- [x] Integrate Langfuse wrapper in `src/lib/tracer.py`:
   - Must check `LANGFUSE_ENABLED=false` and run as a no-op when unset.
   - Redact user raw inputs exceeding 200 characters from span attributes.
-- [ ] **Locked Test Table (Slice 2):**
+- [x] **Locked Test Table (Slice 2):**
   - `T2.1 (Happy)`: Web API endpoint `/api/v1/generate` returns 200 with schema payload.
   - `T2.2 (Resilience)`: App starts and runs cleanly when Langfuse environment variables are missing.
   - `T2.3 (UI Contract)`: Ensure UI strings contain no Simplified Chinese glyphs.
-- [ ] Deliverable: Local demo runnable on Mac Mini (`uvicorn`), `PROGRESS.md`, SemVer bump to `v0.3.0`.
+- [x] Deliverable: Local demo runnable on Mac Mini (`uvicorn`), `PROGRESS.md`, SemVer bump to `v0.3.0`.
 
 ---
 
