@@ -1,4 +1,25 @@
-"""Slice 0 telemetry: coerce vendor dicts, emit strict llm_call events as JSON."""
+"""Slice 0 telemetry: coerce vendor dicts, emit strict llm_call events as JSON.
+
+OBSERVABILITY HOOK (constitution §3.1 / KD-9)
+---------------------------------------------
+One structured event per model invocation (chat, later embed/judge). Fake LLM
+uses the same schema with ``provider=fake``, ``model_id=fake``, tokens=0 so
+unit tests exercise the contract without a network (rule 17 / §3.4).
+
+Two functions on purpose:
+
+- ``telemetry_from_provider`` — the **only** entry that sees vendor/Fake dicts.
+  Never raises (T0.4). Garbage payloads become zeros / ``finish_reason=error``.
+- ``emit_llm_call`` — **strict**. Raises if the object is not
+  ``LLMCallTelemetry``. Tests T0.1 assert JSON fields on the structlog event.
+
+Do not construct ``LLMCallTelemetry`` from a raw vendor dict in call sites.
+``TelemetryLLMClient`` is the only production caller of both (KD-14).
+
+INFO omits ``temperature`` / ``max_tokens`` (rule 16 vs §3.1 "nice to have");
+DEBUG and Langfuse span attributes still receive them from the model.
+Never log full prompts, completions, keys, or PII at INFO (§3.2).
+"""
 
 from __future__ import annotations
 
@@ -14,6 +35,8 @@ from pydantic import BaseModel, ValidationError
 from lib.clock import Clock
 from lib.prices import PriceTable
 
+# Slice 0 sentinels: valid §3.1 event when there is no graph and no prompt file.
+# Slice 3 overwrites node with refine_prompt / execute_prompt on those calls.
 SLICE0_NODE = "complete"
 SLICE0_PROMPT_VERSION = "none"
 
@@ -23,6 +46,13 @@ _prices = PriceTable()
 
 
 class LLMCallTelemetry(BaseModel):
+    """Strict per-call record. Field order matches the original Slice 0 model.
+
+    Flow fields (cec + constitution §3) plus §3.1 LLM fields. ``latency_ms`` is
+    copied onto ``duration_ms`` at coerce time. ``token_total`` is always
+    ``token_in + token_out`` — we do not invent cache tokens.
+    """
+
     timestamp: datetime
     level: Literal["info", "warning", "error"] = "info"
     component: str = "llm_client"
@@ -32,6 +62,7 @@ class LLMCallTelemetry(BaseModel):
     correlation_id: str
     error_type: str | None = None
     error_message: str | None = None
+    # Actual inner client, not the HTTP requested route (KD-18).
     provider: Literal["xai", "google", "openai", "anthropic", "local", "fake"]
     model_id: str
     prompt_version: str
@@ -48,17 +79,23 @@ class LLMCallTelemetry(BaseModel):
     ttft_ms: int | None = None
     estimated_cost_usd: float = 0.0
     price_table_version: str
+    # Graph / RAG fields (optional until those slices exist).
     graph_run_id: str | None = None
     step: int | None = None
     tool: str | None = None
     tool_call_id: str | None = None
     validation_outcome: Literal["pass", "retry", "fail"] | None = None
+    # Rule 16: accepted on the model; stripped from INFO by emit_llm_call.
     temperature: float | None = None
     max_tokens: int | None = None
 
 
 def setup_logging(*, level: str = "INFO", log_dir: Path | None = None) -> None:
-    """JSON structlog for llm_call events. Does not configure hello ConsoleRenderer."""
+    """JSON structlog for llm_call events. Does not configure hello ConsoleRenderer.
+
+    Phase 0 hello uses ConsoleRenderer. This JSON pipeline is for AIOps join on
+    ``correlation_id``. Unifying the two renderers is out of Slices 0–4.
+    """
     global _configured
     del log_dir  # file sink waits until Slice 2
     numeric = getattr(logging, level.upper(), logging.INFO)
@@ -67,6 +104,8 @@ def setup_logging(*, level: str = "INFO", log_dir: Path | None = None) -> None:
         processors=[
             structlog.contextvars.merge_contextvars,
             structlog.processors.add_log_level,
+            # structlog UTC ISO. LLMCallTelemetry.timestamp is HKT from Clock.
+            # Tests pin the clock and must not assert the two clocks are equal.
             structlog.processors.TimeStamper(fmt="iso", utc=True),
             structlog.processors.JSONRenderer(),
         ],
@@ -90,7 +129,12 @@ def _int_or_zero(value: Any) -> int:
 
 
 def telemetry_from_provider(raw: dict[str, Any], **defaults: Any) -> LLMCallTelemetry:
-    """The only entry that sees vendor/Fake dicts. Never raises (T0.4)."""
+    """The only entry that sees vendor/Fake dicts. Never raises (T0.4).
+
+    OBSERVABILITY HOOK — coerce, do not crash. Missing token_* → 0; missing
+    finish_reason → ``error``; unknown keys ignored; unknown provider →
+    ``fake``. Cost is a pinned ``eval/prices.yaml`` lookup, not live billing.
+    """
     if not isinstance(raw, dict):
         raw = {}
     merged: dict[str, Any] = {**defaults, **raw}
@@ -188,7 +232,12 @@ def telemetry_from_provider(raw: dict[str, Any], **defaults: Any) -> LLMCallTele
 
 
 def emit_llm_call(tel: LLMCallTelemetry) -> None:
-    """Strict. Raises if ``tel`` is not a valid model."""
+    """Strict. Raises if ``tel`` is not a valid model.
+
+    OBSERVABILITY HOOK — JSON ``event=llm_call`` to stdout. This is the log
+    join key with Langfuse (``correlation_id``). INFO strips temperature /
+    max_tokens so family logs stay small; the model still carried them.
+    """
     if not isinstance(tel, LLMCallTelemetry):
         raise TypeError("emit_llm_call requires LLMCallTelemetry")
     payload = tel.model_dump(mode="json")

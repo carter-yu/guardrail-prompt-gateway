@@ -1,4 +1,14 @@
-"""Injectable clock. Telemetry timestamps are Asia/Hong_Kong."""
+"""Injectable clock. Telemetry timestamps are Asia/Hong_Kong.
+
+OBSERVABILITY HOOK — ``LLMCallTelemetry.timestamp``
+---------------------------------------------------
+Constitution tests pin ``datetime(2026, 9, 11, 12, 0, tzinfo=HKT)``. A wall
+clock would make T0.1 flake. ``structlog.TimeStamper`` stays UTC ISO; do not
+assert those two clocks are equal (architecture §4.1).
+
+This is the same injectable-clock pattern as cec-vivisystem. The LLM is not
+allowed to be the source of "now".
+"""
 
 from __future__ import annotations
 

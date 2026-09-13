@@ -1,4 +1,15 @@
-"""Pinned model price table (not live billing)."""
+"""Pinned model price table (not live billing).
+
+OBSERVABILITY HOOK — cost estimate
+----------------------------------
+Constitution §3.1 ``estimated_cost_usd`` is tokens times this YAML, rounded to
+6 decimals, plus ``price_table_version``. Figures are **reproducible fixtures**
+for eval/UI badges, not a billing webhook. Unknown ``model_id`` → ``0.0`` and
+a WARNING (T0.3) so a new Grok id cannot crash the logger.
+
+``TelemetryLLMClient`` and graph ``_add_usage`` both call ``estimate``. The
+per-call log uses the wrapper; the HTTP badge uses the graph sum (KD-17).
+"""
 
 from __future__ import annotations
 

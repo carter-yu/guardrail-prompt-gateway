@@ -8,7 +8,7 @@
 
 1. Copy this whole file into the new repo as `docs/ground-rules.md` (keep a root copy if the first slice has no `docs/` yet).
 2. New Grok Build chat: attach this file + one line: `Build the next weekend slice of <slug>. Do not start from a blank scaffold once the repo exists.`
-3. A phase may **narrow scope**. It may **not** waive tests, logging, eval gates, or guardrails.
+3. A phase may **narrow scope**. It may **not** waive tests, logging, eval gates, guardrails, or **§10 educational commentary** on AI modules.
 
 ---
 
@@ -16,7 +16,7 @@
 
 呢份係將來工餘 AI/LLM 小專案嘅憲法。繼承 cec-vivisystem / visa-games：週末 1–2 小時、有測試先寫碼、有 structured log、有 ADR、冇隱藏大腦。
 
-加強：LLM **唔係** source of truth；工具要 allowlist；輸出要 schema；unit test 用 Fake LLM（默認 suite 唔打錢）；有 RAG 就要 golden set + RAGAS；有 LLM call 就要 log **邊個 model、token、latency**，再用 Langfuse（紅acted）；不可逆動作要 human confirmation。示範要寫明做唔到咩。
+加強：LLM **唔係** source of truth；工具要 allowlist；輸出要 schema；unit test 用 Fake LLM（默認 suite 唔打錢）；有 RAG 就要 golden set + RAGAS；有 LLM call 就要 log **邊個 model、token、latency**，再用 Langfuse（紅acted）；不可逆動作要 human confirmation。示範要寫明做唔到咩。AI 程式碼要有**英文教學註解**（點解用呢個 LangGraph 節點 / reducer / 邊、INPUT/TOOL/OUTPUT GATE、OBSERVABILITY HOOK），唔好淨係寫「做咗咩」；註解唔可以改 runtime。
 
 ---
 
@@ -84,6 +84,7 @@ These apply to **every phase and every component** unless an ADR changes them.
 19. **Observe every real LLM call** — Live calls emit the §3.1 fields **and** a **Langfuse** (or documented equivalent) span: same `correlation_id`, node, model, tokens, latency, tool name. Redact secrets and raw PII from traces. Local/dev must work **without** Langfuse (no-op exporter). Do not fail the demo because the dashboard is down. Fake-LLM unit tests still log `model_id=fake` + tokens=0 so the schema is exercised.
 20. **Budgets** — Each live path declares `max_tokens`, `max_steps` (graph), `timeout_s`, and a **cost ceiling** for the golden eval job. Exceeding `max_steps` / timeout is a **visible failure**, not a silent retry storm. Retries are bounded (max 2) and idempotent.
 21. **Honest demo limits** — README states what the project does **not** do (cec: no OS-lock analogue). Examples: “not production RAG”, “retriever is local chroma/FAISS, not a hosted cluster”, “judge is LLM-as-judge, not human labels”. Never present a stub as a live vendor.
+22. **Educational AI commentary** — This codebase is also a textbook. Every LangChain / LangGraph / routing / tool-calling / guardrail / telemetry module must carry **English** comments and docstrings that teach *why* the construct exists (system design, state, payload contracts, deterministic boundaries). See **§10**. Comments must not change runtime logic, tests, or telemetry.
 
 ---
 
@@ -281,6 +282,7 @@ Auth and hosted DB stay **off** unless the slice’s whole point is that vendor 
 - One typed `State` + named nodes. README contains a mermaid of the graph.
 - `max_steps`, timeout, and a terminal `Failed` node.
 - Unit-test the **reducers and routing** with a fake model: given state X, next node is Y.
+- Comments per **§10**: topology, typed state, reducer policy (or last-write-wins + explicit accumulators), explicit edges, and why this is not a hidden orchestrator.
 
 ### Vector database
 
@@ -320,6 +322,7 @@ Paste the following 13 lines as the Grok Build prompt (no nested fence in this c
     Lock the test/eval table for THIS slice before coding. Default tests: Fake LLM, offline, no secrets.
     LLM is a component, not source of truth. Guardrails in code (schema, tool allowlist, output validate).
     LangGraph = explicit graph, no hidden supervisor blob.
+    AI modules need educational English comments (ground-rules §10): why LangGraph/LangChain constructs exist, explicit topology/reducers/edges, INPUT/TOOL/OUTPUT GATE markers, OBSERVABILITY HOOK markers. Comments must not change logic.
     If this slice claims RAG: golden set + RAGAS thresholds. If it claims a judge: DeepEval.
     Live calls: log section 3.1 (model, tokens, latency, cost estimate) + Langfuse optional, redacted; app runs with LANGFUSE_ENABLED=false.
     Human confirm + dry-run for any side effect. English engineering. UI Cantonese+English. Never Simplified Chinese.
@@ -341,6 +344,7 @@ Paste the following 13 lines as the Grok Build prompt (no nested fence in this c
 - [ ] Honest limit line in README
 - [ ] SemVer bumped; `PROGRESS.md` updated
 - [ ] ADR if a vendor/model/store was chosen
+- [ ] AI modules (graph, router, tools, gates, telemetry) have educational English comments per §10 (why, topology, GATE markers, OBSERVABILITY HOOK)
 
 ---
 
@@ -351,4 +355,68 @@ Paste the following 13 lines as the Grok Build prompt (no nested fence in this c
 - Not a replacement for cec-vivisystem or visa-games constitutions **inside those repos**.
 - Not permission to turn every weekend into “add an agent”. Most slices should stay **one node, one contract, one eval**.
 
-*Adopted from cec-vivisystem (Kevin Kelly vivisystem spine) and visa-games (honest limits + SemVer) on 2026-09-10. For LLM learning/demonstrate projects only.*
+---
+
+## 10. Educational commentary on AI systems (binding)
+
+This repo (and every future AI/LLM learning project copied from this constitution) is also a **textbook**. Comments and docstrings on AI components are not optional decoration. They are how the operator learns LangChain, LangGraph, LLM routing, and tool calling from *this* code.
+
+Grep markers (English, stable): `INPUT GATE`, `TOOL GATE`, `OUTPUT GATE`, `OBSERVABILITY HOOK`.
+
+### 10.1 When this rule applies
+
+Add or update English comments/docstrings whenever you create or edit:
+
+- LangGraph state, nodes, edges, reducers, compile/invoke
+- LangChain / vendor adapters (`LLMClient`, messages, structured output)
+- LLM routing (`get_client`, `complete_llm`, `complete_request`)
+- Tool calling (allowlists, `ToolCall`, HITL, dry-run)
+- Deterministic gates (input schema, PII, injection, output schema)
+- Observability (token/latency/cost telemetry, Langfuse / no-op tracer)
+
+Do **not** comment-narrate tests, hello-world, or i18n catalogs. Do **not** change runtime logic, test assertions, or telemetry behavior in order to "make room" for a comment. Do **not** add comments inside pinned prompt files that are loaded as system messages (`prompts/*.md`) — that would change the model payload.
+
+### 10.2 What the comments must teach (why, not what)
+
+Architectural focus. Frame every non-obvious construct around **system design, state management, payload contracts, and deterministic boundaries**.
+
+Forbidden: "Increment the counter." / "Call the model." / restating the identifier.
+Required: why this LangGraph/LangChain construct exists, what would go wrong if it were a hidden agent loop, which contract it enforces.
+
+On Pydantic models, prefer `#` comments above fields — not attribute docstrings — so `Field(description=...)` and JSON schema stay unchanged.
+
+### 10.3 LangGraph mechanics (mandatory in graph modules)
+
+The graph file(s) must make all of the following visible in comments:
+
+- **Topology** — named nodes, `START`/`END`, mermaid or equivalent in the module docstring
+- **State** — typed fields and what each is for (request vs derived vs accumulators)
+- **Reducers** — last-write-wins vs `Annotated` add; if accumulators are computed in the node, say so
+- **Edges** — every conditional route and the predicate that selects it
+- **Budgets** — `step_count` / `max_steps` and `recursion_limit`; both are visible failures
+- **Not a hidden orchestrator** — no `create_agent`, no unbounded tool loop, no control flow hidden in a prompt
+
+### 10.4 Deterministic guardrails (flag the exact line)
+
+Comments must mark, at the **exact** code site:
+
+- Input validation (schema, length, PII, injection) — *before* the graph/provider
+- Tool restriction (per-node allowlist; unlisted names never execute)
+- Structured output (Pydantic/JSON schema validate *before* persist or tool fire)
+
+### 10.5 Observability (flag the exact hook)
+
+Comments must mark, at the **exact** code site:
+
+- Wall-clock latency around `complete`
+- Token in/out (and cost table lookup)
+- Structured `llm_call` emit
+- Langfuse `span_llm` / `span_tool` (and the no-op path)
+
+### 10.6 Language and hygiene
+
+- English only (rule 9). Never Simplified Chinese in comments.
+- Docstrings on modules, public classes, and public functions. Inline comments only at design-critical lines.
+- Zero logic alteration: a comment-only slice must not change control flow, defaults, log fields, field order, or tests.
+
+*Adopted from cec-vivisystem (Kevin Kelly vivisystem spine) and visa-games (honest limits + SemVer) on 2026-09-10. Educational commentary rule (§10 / rule 22) added 2026-09-12. For LLM learning/demonstrate projects only.*

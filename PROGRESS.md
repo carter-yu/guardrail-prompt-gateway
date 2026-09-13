@@ -5,6 +5,21 @@ Add a new entry at the top after every session.
 
 ---
 
+## 2026-09-12 (Educational AI comments)
+
+- **Phase**: Comment-only — LangGraph / routing / gates / telemetry textbook comments
+- **Version**: 0.4.0 (no bump; no runtime or HTTP change)
+- **Completed**:
+  - English architectural comments on `src/graph/`, `src/services/`, `src/lib/`, `src/schemas/`, `src/app/main.py`
+  - Grep markers: `INPUT GATE`, `TOOL GATE`, `OUTPUT GATE`, `OBSERVABILITY HOOK`
+  - Ground rules: new rule 22 + §10 in `docs/ground-rules.md` and `/Users/yucarter/my-ai-projects/-ai-projects-ground-rules.md`
+  - Did **not** edit `prompts/prompt_refiner.v1.md` (loaded as system message)
+- **Tests**: 27 passed; ruff clean
+- **Next session plan**: Slice 4 flight tool + HITL T4.1–T4.4 (comments on new tool files per §10)
+- **Session status**: comment-only; offline suite still green
+
+---
+
 ## 2026-09-11 (Slice 3 LangGraph)
 
 - **Phase**: Slice 3 – explicit 2-node LangGraph (`refine_prompt` → `execute_prompt`)
